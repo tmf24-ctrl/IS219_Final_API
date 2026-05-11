@@ -93,3 +93,20 @@ def test_llm_error_returns_502() -> None:
     assert "LLM service error" in response.json()["detail"]
 
     app.dependency_overrides.clear()
+
+
+def test_root_serves_html() -> None:
+    client = TestClient(app)
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+
+
+def test_mode_endpoint_returns_mock_flag() -> None:
+    client = TestClient(app)
+    response = client.get("/mode")
+    assert response.status_code == 200
+    body = response.json()
+    assert "mock" in body
+    assert isinstance(body["mock"], bool)
+    assert "model" in body
