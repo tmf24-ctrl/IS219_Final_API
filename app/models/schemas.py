@@ -1,5 +1,3 @@
-from typing import Any
-
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -7,10 +5,6 @@ class AnalysisRequest(BaseModel):
     resume_text: str = Field(..., min_length=10, description="Raw resume text")
     job_description_text: str = Field(
         ..., min_length=10, description="Target job description text"
-    )
-    api_key: str | None = Field(
-        None,
-        description="Optional Gemini API key. Overrides server-side GEMINI_API_KEY for this request.",
     )
 
     @field_validator("resume_text", "job_description_text")
@@ -44,4 +38,4 @@ class LLMImproveResult(BaseModel):
 
 
 class LLMResponseEnvelope(BaseModel):
-    payload: dict[str, Any]
+    payload: dict

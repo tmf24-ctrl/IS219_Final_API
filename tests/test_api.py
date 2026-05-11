@@ -6,14 +6,14 @@ from app.services.llm_service import LLMServiceError, get_llm_service
 
 
 class FakeLLMService:
-    def analyze_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMAnalysisResult:
+    def analyze_resume(self, resume_text: str, job_description_text: str) -> LLMAnalysisResult:
         return LLMAnalysisResult(
             matching_skills=["python", "fastapi"],
             missing_skills=["docker"],
             summary="Strong backend fit with one key infrastructure gap.",
         )
 
-    def improve_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMImproveResult:
+    def improve_resume(self, resume_text: str, job_description_text: str) -> LLMImproveResult:
         return LLMImproveResult(
             improved_bullet_points=[
                 "Built FastAPI services that reduced response latency by 35%.",
@@ -27,10 +27,10 @@ class FakeLLMService:
 
 
 class FailingLLMService:
-    def analyze_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMAnalysisResult:
+    def analyze_resume(self, resume_text: str, job_description_text: str) -> LLMAnalysisResult:
         raise LLMServiceError("upstream failure")
 
-    def improve_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMImproveResult:
+    def improve_resume(self, resume_text: str, job_description_text: str) -> LLMImproveResult:
         raise LLMServiceError("upstream failure")
 
 
@@ -102,11 +102,3 @@ def test_root_serves_html() -> None:
     assert "text/html" in response.headers["content-type"]
 
 
-def test_mode_endpoint_returns_mock_flag() -> None:
-    client = TestClient(app)
-    response = client.get("/mode")
-    assert response.status_code == 200
-    body = response.json()
-    assert "mock" in body
-    assert isinstance(body["mock"], bool)
-    assert "model" in body

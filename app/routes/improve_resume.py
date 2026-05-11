@@ -15,7 +15,6 @@ def improve_resume(
         result = llm_service.improve_resume(
             resume_text=request.resume_text,
             job_description_text=request.job_description_text,
-            api_key=request.api_key,
         )
     except LLMServiceError as exc:
         raise HTTPException(

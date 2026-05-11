@@ -7,7 +7,6 @@ from fastapi.staticfiles import StaticFiles
 
 from app.routes.analyze import router as analyze_router
 from app.routes.improve_resume import router as improve_resume_router
-from app.services.llm_service import LLMService
 
 _STATIC = Path(__file__).parent / "static"
 
@@ -36,12 +35,6 @@ def root() -> FileResponse:
 @app.get("/health", tags=["health"])
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
-
-
-@app.get("/mode", tags=["health"])
-def mode_check() -> dict:
-    service = LLMService()
-    return {"mock": service.using_mock, "model": service.model}
 
 
 app.include_router(analyze_router)
