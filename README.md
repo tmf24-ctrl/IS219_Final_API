@@ -1,6 +1,8 @@
 # AI Job Application Assistant API
 
-A professional FastAPI backend that compares a resume against a job description, identifies skill gaps, and rewrites resume bullet points to better match a target role — powered by an LLM (Google Gemini) with a fully functional mock mode for offline use.
+**Live demo → [https://is-219-final-api.vercel.app](https://is-219-final-api.vercel.app)**
+
+A FastAPI backend + scrollytelling web frontend that compares a resume against a job description, identifies skill gaps, and rewrites resume bullet points to better match a target role — powered by Google Gemini 2.0.
 
 ---
 
@@ -24,18 +26,19 @@ I then discussed project ideas with AI, and we landed on this: a resume analysis
 |---|---|
 | LLM API integration | `LLMService` calls Google Gemini with structured prompts and parses JSON responses |
 | FastAPI REST design | Two validated endpoints with Pydantic schemas, dependency injection, and OpenAPI docs |
-| Graceful degradation | Mock mode activates automatically when no API key is present — no crashes, no config required |
-| Backend testing | 7 pytest tests covering endpoint success, validation errors, and service-level LLM failures |
+| Scrollytelling frontend | Single-page site that tells the story of modern hiring before presenting the tool |
+| Backend testing | 6 pytest tests covering endpoint success, validation errors, and service-level LLM failures |
 | Clean code structure | Separation of routes, services, models, and utilities |
+| Deployed to Vercel | Live at [https://is-219-final-api.vercel.app](https://is-219-final-api.vercel.app) |
 
 ---
 
 ## Features
 
-- `POST /analyze` — compares resume text against a job description; returns matching skills, missing skills, and a summary
-- `POST /improve-resume` — rewrites resume bullet points to better align with the target role; returns improved bullets and actionable suggestions
-- **Mock mode** — works fully offline with no API key using local keyword extraction
-- **LLM mode** — plug in a free Gemini API key for real AI-powered analysis
+- **Scrollytelling web UI** — narrates the problem of outdated resumes and modern hiring before guiding users through a 4-step form
+- `POST /analyze` — compares resume text against a job description; returns matching skills, missing skills, and a fit summary
+- `POST /improve-resume` — rewrites resume bullet points with strong action verbs, quantified results, and keyword alignment
+- Requires a `GEMINI_API_KEY` set server-side (via `.env` or Vercel environment variables)
 - Input validation with Pydantic (returns HTTP 422 on bad input)
 - LLM errors surfaced as HTTP 502 with clear messages
 
@@ -43,11 +46,12 @@ I then discussed project ideas with AI, and we landed on this: a resume analysis
 
 ## Tech Stack
 
-- Python 3.10+
-- FastAPI
-- Google Gemini API (`google-generativeai`)
+- Python 3.11+
+- FastAPI + Uvicorn
+- Google Gemini 2.0 Flash (`google-generativeai`)
 - Pydantic v2
 - Pytest + HTTPX
+- Vercel (deployment)
 
 ---
 
@@ -64,14 +68,18 @@ is219-final/
 │   │   └── llm_service.py       # Gemini integration + mock fallback
 │   ├── models/
 │   │   └── schemas.py           # Pydantic request/response models
+│   ├── static/
+│   │   └── index.html           # Scrollytelling single-page frontend
 │   └── utils/
-│       └── text_processing.py   # Skill extraction and bullet parsing
+│       └── text_processing.py   # Utility helpers
+├── api/
+│   └── index.py                 # Vercel serverless entry point
 ├── tests/
 │   ├── test_api.py              # Endpoint integration tests
 │   └── test_services.py        # LLM service unit tests
 ├── conftest.py
+├── vercel.json
 ├── requirements.txt
-├── .env.example
 └── README.md
 ```
 
@@ -104,18 +112,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment (optional)
+### 4. Configure environment
 
-```bash
-# Windows
-copy .env.example .env
+Create a `.env` file in the project root:
 
-# macOS / Linux
-cp .env.example .env
+```
+GEMINI_API_KEY=your_key_here
 ```
 
-Open `.env` and add your Gemini API key if you want real AI responses.  
-**No key? No problem.** The app runs in mock mode automatically.
+Get a free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey). The server will refuse to start without a valid key.
 
 ---
 
@@ -125,9 +130,23 @@ Open `.env` and add your Gemini API key if you want real AI responses.
 uvicorn app.main:app --reload
 ```
 
+The web UI is served at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
 Interactive API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 Health check: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
+
+---
+
+## Deploy to Vercel
+
+The `vercel.json` and `api/index.py` are already configured. Just:
+
+1. Import the GitHub repo at [vercel.com](https://vercel.com)
+2. Add `GEMINI_API_KEY` as an environment variable in project settings
+3. Deploy
+
+Live URL: [https://is-219-final-api.vercel.app](https://is-219-final-api.vercel.app)
 
 ---
 
@@ -137,7 +156,7 @@ Health check: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
 pytest -v
 ```
 
-All 7 tests pass with no API key required.
+All 6 tests pass (endpoint success, validation, LLM error handling, no-key startup error).
 
 ```
 tests/test_api.py::test_analyze_endpoint_success        PASSED
