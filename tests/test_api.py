@@ -6,14 +6,14 @@ from app.services.llm_service import LLMServiceError, get_llm_service
 
 
 class FakeLLMService:
-    def analyze_resume(self, resume_text: str, job_description_text: str) -> LLMAnalysisResult:
+    def analyze_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMAnalysisResult:
         return LLMAnalysisResult(
             matching_skills=["python", "fastapi"],
             missing_skills=["docker"],
             summary="Strong backend fit with one key infrastructure gap.",
         )
 
-    def improve_resume(self, resume_text: str, job_description_text: str) -> LLMImproveResult:
+    def improve_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMImproveResult:
         return LLMImproveResult(
             improved_bullet_points=[
                 "Built FastAPI services that reduced response latency by 35%.",
@@ -27,10 +27,10 @@ class FakeLLMService:
 
 
 class FailingLLMService:
-    def analyze_resume(self, resume_text: str, job_description_text: str) -> LLMAnalysisResult:
+    def analyze_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMAnalysisResult:
         raise LLMServiceError("upstream failure")
 
-    def improve_resume(self, resume_text: str, job_description_text: str) -> LLMImproveResult:
+    def improve_resume(self, resume_text: str, job_description_text: str, api_key: str | None = None) -> LLMImproveResult:
         raise LLMServiceError("upstream failure")
 
 

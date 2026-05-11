@@ -15,6 +15,7 @@ def analyze_resume(
         result = llm_service.analyze_resume(
             resume_text=request.resume_text,
             job_description_text=request.job_description_text,
+            api_key=request.api_key,
         )
     except LLMServiceError as exc:
         raise HTTPException(
