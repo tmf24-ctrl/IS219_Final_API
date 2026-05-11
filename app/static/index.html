@@ -60,65 +60,6 @@
             white-space: nowrap;
         }
 
-        /* ── API Key bar ── */
-        .key-bar {
-            background: #fffbeb;
-            border-bottom: 1px solid #fde68a;
-            padding: 10px 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .key-bar label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #92400e;
-            white-space: nowrap;
-        }
-
-        #apiKeyInput {
-            flex: 1;
-            border: 1.5px solid #fcd34d;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 13px;
-            font-family: 'Courier New', monospace;
-            background: #fff;
-            outline: none;
-            color: #1e293b;
-            transition: border-color 0.15s;
-        }
-
-        #apiKeyInput:focus { border-color: #f59e0b; }
-        #apiKeyInput::placeholder { color: #94a3b8; font-family: inherit; }
-
-        #saveKeyBtn {
-            padding: 6px 16px;
-            border-radius: 8px;
-            border: none;
-            background: #f59e0b;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.15s;
-            font-family: inherit;
-        }
-
-        #saveKeyBtn:hover { background: #d97706; }
-
-        .key-status {
-            font-size: 12px;
-            color: #15803d;
-            white-space: nowrap;
-            display: none;
-        }
-
-        .key-status.visible { display: block; }
-
         /* ── Messages ── */
         .messages {
             flex: 1;
@@ -342,20 +283,6 @@
         <span class="mode-badge" id="modeBadge">checking…</span>
     </div>
 
-    <!-- API Key bar -->
-    <div class="key-bar">
-        <label for="apiKeyInput">🔑 Gemini API Key</label>
-        <input
-            type="password"
-            id="apiKeyInput"
-            placeholder="Paste your key for real AI analysis (optional — works without one)"
-            autocomplete="off"
-            spellcheck="false"
-        />
-        <button id="saveKeyBtn">Apply</button>
-        <span class="key-status" id="keyStatus">✓ Key saved</span>
-    </div>
-
     <div class="messages" id="messages"></div>
 
     <div class="input-area">
@@ -376,39 +303,16 @@ let state      = 'greeting';
 let action     = null;
 let resumeText = '';
 let jobText    = '';
-let geminiKey  = sessionStorage.getItem('gemini_api_key') || '';
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
-const messagesEl  = document.getElementById('messages');
-const chatInput   = document.getElementById('chatInput');
-const sendBtn     = document.getElementById('sendBtn');
-const inputHint   = document.getElementById('inputHint');
-const modeBadge   = document.getElementById('modeBadge');
-const apiKeyInput = document.getElementById('apiKeyInput');
-const saveKeyBtn  = document.getElementById('saveKeyBtn');
-const keyStatus   = document.getElementById('keyStatus');
-
-// Restore saved key into input
-if (geminiKey) {
-    apiKeyInput.value = geminiKey;
-    keyStatus.classList.add('visible');
-}
-
-saveKeyBtn.addEventListener('click', () => {
-    geminiKey = apiKeyInput.value.trim();
-    sessionStorage.setItem('gemini_api_key', geminiKey);
-    keyStatus.textContent = geminiKey ? '✓ Key saved' : '✓ Cleared (mock mode)';
-    keyStatus.classList.add('visible');
-    updateModeBadge();
-});
+const messagesEl = document.getElementById('messages');
+const chatInput  = document.getElementById('chatInput');
+const sendBtn    = document.getElementById('sendBtn');
+const inputHint  = document.getElementById('inputHint');
+const modeBadge  = document.getElementById('modeBadge');
 
 // ── Mode badge ────────────────────────────────────────────────────────────────
 async function updateModeBadge() {
-    if (geminiKey) {
-        modeBadge.textContent = '● AI Live (your key)';
-        modeBadge.style.background = 'rgba(34,197,94,0.3)';
-        return;
-    }
     try {
         const r = await fetch(API + '/mode');
         if (!r.ok) throw new Error();
@@ -502,7 +406,6 @@ async function callAPI() {
         resume_text: resumeText,
         job_description_text: jobText,
     };
-    if (geminiKey) body.api_key = geminiKey;
 
     try {
         const res = await fetch(API + endpoint, {
@@ -517,11 +420,7 @@ async function callAPI() {
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
             const detail = err.detail || 'Something went wrong.';
-            const isKeyError = detail.toLowerCase().includes('auth') || detail.toLowerCase().includes('key');
-            botText(
-                `<span style="color:#dc2626">⚠️ Error ${res.status}: ${detail}</span>` +
-                (isKeyError ? '<br><small>Double-check your Gemini API key in the bar above.</small>' : '')
-            );
+            botText(`<span style="color:#dc2626">⚠️ Error ${res.status}: ${detail}</span>`);
         } else {
             renderResult(await res.json());
         }
@@ -614,11 +513,7 @@ function greet() {
     chatInput.value = '';
     sendBtn.disabled = false;
 
-    const keyNote = geminiKey
-        ? '<small style="color:#15803d">✓ Gemini key active — AI-powered results enabled.</small>'
-        : '<small style="color:#92400e">No API key set — running in keyword-match mode. Paste a Gemini key above for real AI analysis.</small>';
-
-    botText(`<strong>Hi! I\'m your AI Resume Assistant.</strong><br>${keyNote}<br><br>What would you like help with?`);
+    botText('<strong>Hi! I\'m your AI Resume Assistant.</strong><br>What would you like help with?');
     addChips([
         { label: '🔍 Analyze Skill Gap',      value: 'analyze' },
         { label: '✏️ Improve Resume Bullets', value: 'improve' },
