@@ -15,6 +15,13 @@ _SYSTEM_INSTRUCTION = (
     "Always return valid JSON only -- no markdown, no code fences, no extra text."
 )
 
+_CHAT_SYSTEM_INSTRUCTION = (
+    "You are an expert career coach and resume advisor. "
+    "Answer concisely and practically. Help users improve their resumes, "
+    "understand job requirements, navigate job searches, and prepare for interviews. "
+    "Be warm, direct, and specific. Limit responses to 3-4 short paragraphs max."
+)
+
 
 class LLMServiceError(Exception):
     pass
@@ -37,6 +44,11 @@ class LLMService:
                 response_mime_type="application/json",
             ),
         )
+        self._chat_client = genai.GenerativeModel(
+            model_name=self.model,
+            system_instruction=_CHAT_SYSTEM_INSTRUCTION,
+            generation_config=genai.GenerationConfig(temperature=0.7),
+        )
 
     def analyze_resume(self, resume_text: str, job_description_text: str) -> LLMAnalysisResult:
         prompt = self._analysis_prompt(resume_text, job_description_text)
@@ -53,6 +65,17 @@ class LLMService:
             return LLMImproveResult(**data)
         except Exception as exc:
             raise LLMServiceError(f"Invalid improve response shape: {exc}") from exc
+
+    def chat(self, message: str, history: list[dict] | None = None) -> str:
+        prompt = self._chat_prompt(message, history or [])
+        try:
+            response = self._chat_client.generate_content(prompt)
+            return response.text.strip()
+        except Exception as exc:
+            msg = str(exc)
+            if any(k in msg for k in ("API_KEY_INVALID", "PERMISSION_DENIED", "401", "403")):
+                raise LLMServiceError("Gemini authentication failed. Check that your API key is valid.") from exc
+            raise LLMServiceError(f"Chat request failed: {type(exc).__name__}: {msg}") from exc
 
     def _call_llm_json(self, prompt: str) -> dict[str, Any]:
         try:
@@ -103,6 +126,15 @@ class LLMService:
             "4. Biggest weakness for this role and how to address it.\n\n"
             f"Resume:\n{resume_text}\n\nJob Description:\n{job_description_text}"
         )
+
+    def _chat_prompt(self, message: str, history: list[dict]) -> str:
+        parts = []
+        for turn in history[-6:]:  # last 3 exchanges max
+            role = "User" if turn.get("role") == "user" else "Assistant"
+            parts.append(f"{role}: {turn.get('content', '')}")
+        parts.append(f"User: {message}")
+        parts.append("Assistant:")
+        return "\n\n".join(parts)
 
 
 def get_llm_service() -> LLMService:

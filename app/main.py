@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.routes.analyze import router as analyze_router
+from app.routes.chat import router as chat_router
 from app.routes.improve_resume import router as improve_resume_router
 
 _STATIC = Path(__file__).parent / "static"
@@ -39,5 +40,6 @@ def health_check() -> dict[str, str]:
 
 app.include_router(analyze_router)
 app.include_router(improve_resume_router)
+app.include_router(chat_router)
 
 app.mount("/static", StaticFiles(directory=str(_STATIC)), name="static")
