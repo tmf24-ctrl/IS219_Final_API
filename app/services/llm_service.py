@@ -62,7 +62,7 @@ class LLMService:
             msg = str(exc)
             if any(k in msg for k in ("API_KEY_INVALID", "PERMISSION_DENIED", "401", "403")):
                 raise LLMServiceError("Gemini authentication failed. Check that your API key is valid.") from exc
-            raise LLMServiceError("LLM request failed due to an upstream provider error.") from exc
+            raise LLMServiceError(f"Gemini request failed: {type(exc).__name__}: {msg}") from exc
 
         raw_text = re.sub(r"^``[a-z]*\n?", "", raw_text.strip(), flags=re.IGNORECASE)
         raw_text = re.sub(r"``$", "", raw_text.strip())
