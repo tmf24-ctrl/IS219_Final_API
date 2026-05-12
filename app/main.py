@@ -33,6 +33,11 @@ def root() -> FileResponse:
     return FileResponse(_STATIC / "index.html")
 
 
+@app.get("/budget", include_in_schema=False)
+def budget_page() -> FileResponse:
+    return FileResponse(_STATIC / "budget.html")
+
+
 @app.get("/health", tags=["health"])
 def health_check() -> dict[str, str]:
     return {"status": "ok"}

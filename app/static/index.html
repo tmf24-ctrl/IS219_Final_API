@@ -566,7 +566,10 @@ footer a:hover { text-decoration: underline; }
 <!-- Nav -->
 <nav id="mainNav">
   <div class="nav-logo">resume<span>AI</span></div>
-  <a href="#tool" class="nav-cta">Try It Free</a>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <a href="/budget" style="font-size:13px;font-weight:600;color:var(--sage-dark);text-decoration:none;border:1.5px solid var(--sage);border-radius:16px;padding:6px 16px;transition:all 0.2s;" onmouseover="this.style.background='var(--sage-dark)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='var(--sage-dark)'">🎓 Budget Guide</a>
+    <a href="#tool" class="nav-cta">Try It Free</a>
+  </div>
 </nav>
 
 <!-- ░░ HERO ░░ -->
@@ -577,7 +580,7 @@ footer a:hover { text-decoration: underline; }
   <div class="hero-inner">
     <div class="hero-tag reveal">
       <span class="dot"></span>
-      AI-powered · Gemini 2.0 · Real-time analysis
+      AI-powered · Gemini 2.5 Flash · Real-time analysis
     </div>
     <h1 class="hero-headline reveal reveal-delay-1">
       Your resume is<br>
@@ -867,7 +870,7 @@ footer a:hover { text-decoration: underline; }
 
 <!-- ░░ FOOTER ░░ -->
 <footer>
-  <p>Built with <a href="https://fastapi.tiangolo.com">FastAPI</a> · Powered by <a href="https://deepmind.google/technologies/gemini/">Gemini 2.0</a> · IS-219 Final Project</p>
+  <p>Built with <a href="https://fastapi.tiangolo.com">FastAPI</a> · Powered by <a href="https://deepmind.google/technologies/gemini/">Gemini 2.5 Flash</a> · IS-219 Final Project · <a href="/budget">🎓 New Grad Budget Guide</a></p>
   <p style="margin-top:8px;font-size:12px;opacity:.6">Your text is sent directly to the Gemini API and is not stored or logged by this application.</p>
 </footer>
 
