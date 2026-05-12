@@ -21,7 +21,7 @@ class LLMServiceError(Exception):
 
 
 class LLMService:
-    def __init__(self, model: str = "gemini-2.0-flash-lite") -> None:
+    def __init__(self, model: str = "gemini-2.0-flash") -> None:
         api_key = os.getenv("GEMINI_API_KEY", "").strip()
         self.model = os.getenv("GEMINI_MODEL", model)
         if not api_key:
